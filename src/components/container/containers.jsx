@@ -4,7 +4,7 @@ import './containers.css';
 import Button from './button/button';
 import Slider from './slider/slider';
 import CheckBox from './checkbox/checkbox';
-import {base,generate, setPasswordLength, copyToClipBoard } from '../../utils/helper';
+import {base,generate, setPasswordLength, copyToClipBoard,save } from '../../utils/helper';
 
 const accessToken = localStorage.getItem('jwtToken')
 const CHECKBOX_LIST = [
@@ -175,9 +175,20 @@ const Container = props => {
         }
     }
 
-    const copyClipBoard = elementRef => e => {
+    const copyClipBoard = elementRef =>async e => {
         e.preventDefault();
         copyToClipBoard(elementRef);
+        try {
+            const copiedPassword = await navigator.clipboard.readText();
+            const response = await axios.post(base+save, {'copied': copiedPassword },
+            {headers:
+                {'Authorization': `Bearer ${accessToken}`}
+            });
+            console.log('Password copied to the backend:', response.data);
+        } catch (error) {
+            console.error('Error copying password to the backend:', error);
+            // Handle the error, show a message, etc.
+        }
     }
 
     return (

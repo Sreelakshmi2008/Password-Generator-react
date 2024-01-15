@@ -4,7 +4,7 @@ import './display.css';
 import { Container } from '../container/containers';
 import Button from '../container/button/button';
 import Tooltip from '../container/tooltip/tooltip';
-import {  copyToClipBoard, base, generate } from '../../utils/helper';
+import {  copyToClipBoard, base, generate,save } from '../../utils/helper';
 
 const Display = () => {
     const [password, setPassword] = useState('');
@@ -32,9 +32,21 @@ const Display = () => {
         }
     }
     
-    const copyClipBoard = e => {
+    const copyClipBoard = async(e) => {
         e.preventDefault();
         copyToClipBoard(passwordRef.current);
+        
+        try {
+            const copiedPassword = await navigator.clipboard.readText();
+            const response = await axios.post(base+save, {'copied': copiedPassword },
+            {headers:
+                {'Authorization': `Bearer ${accessToken}`}
+            });
+            console.log('Password copied to the backend:', response.data);
+        } catch (error) {
+            console.error('Error copying password to the backend:', error);
+            // Handle the error, show a message, etc.
+        }
         setTooltip(true);
         setTimeout(() => {
             setTooltip(false);
